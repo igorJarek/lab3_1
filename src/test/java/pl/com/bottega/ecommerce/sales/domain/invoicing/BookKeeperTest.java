@@ -106,10 +106,31 @@ public class BookKeeperTest {
         InvoiceRequest invoiceRequest = new InvoiceRequest(clientData);
 
         TaxPolicy taxPolicy = mock(TaxPolicy.class);
-        when(taxPolicy.calculateTax(any(ProductType.class), any(Money.class))).thenReturn(new Tax(Money.ZERO, null));
 
         bookKeeper.issuance(invoiceRequest, taxPolicy);
 
         verify(taxPolicy, never()).calculateTax(any(ProductType.class), any(Money.class));
+    }
+
+    @Test
+    public void invoiceRequestWithOneMillionItemMustCallCalculateTaxOneMillionTimes() {
+        InvoiceRequest invoiceRequest = new InvoiceRequest(clientData);
+
+        final int count = 1000000;
+        for(int i = 0; i < count; i++) {
+            ProductData productData = mock(ProductData.class);
+            RequestItem requestItem = new RequestItem(productData, 1, Money.ZERO);
+
+            when(productData.getType()).thenReturn(ProductType.STANDARD);
+
+            invoiceRequest.add(requestItem);
+        }
+
+        TaxPolicy taxPolicy = mock(TaxPolicy.class);
+        when(taxPolicy.calculateTax(any(ProductType.class), any(Money.class))).thenReturn(new Tax(Money.ZERO, null));
+
+        bookKeeper.issuance(invoiceRequest, taxPolicy);
+
+        verify(taxPolicy, times(count)).calculateTax(any(ProductType.class), any(Money.class));
     }
 }
