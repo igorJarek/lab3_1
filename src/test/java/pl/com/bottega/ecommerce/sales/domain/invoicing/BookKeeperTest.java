@@ -100,4 +100,16 @@ public class BookKeeperTest {
 
         assertThat(invoice.getItems().size(), is(count));
     }
+
+    @Test
+    public void invoiceRequestWithZeroItemMustCallCalculateTaxZeroTimes() {
+        InvoiceRequest invoiceRequest = new InvoiceRequest(clientData);
+
+        TaxPolicy taxPolicy = mock(TaxPolicy.class);
+        when(taxPolicy.calculateTax(any(ProductType.class), any(Money.class))).thenReturn(new Tax(Money.ZERO, null));
+
+        bookKeeper.issuance(invoiceRequest, taxPolicy);
+
+        verify(taxPolicy, never()).calculateTax(any(ProductType.class), any(Money.class));
+    }
 }
