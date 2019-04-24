@@ -20,6 +20,7 @@ import pl.com.bottega.ecommerce.sharedkernel.Money;
 public class BookKeeper {
 
     private InvoiceFactory invoiceFactory;
+    private Tax tax;
 
     public BookKeeper(InvoiceFactory invoiceFactory) {
         this.invoiceFactory = invoiceFactory;

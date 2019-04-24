@@ -71,4 +71,14 @@ public class BookKeeperTest {
         verify(taxPolicy, times(1)).calculateTax(productDataOne.getType(), requestItemOne.getTotalCost());
         verify(taxPolicy, times(1)).calculateTax(productDataTwo.getType(), requestItemTwo.getTotalCost());
     }
+
+    @Test
+    public void invoiceRequestWithZeroItemMustReturnInvoiceWithZeroItem() {
+        InvoiceRequest invoiceRequest = new InvoiceRequest(clientData);
+        TaxPolicy taxPolicy = mock(TaxPolicy.class);
+
+        Invoice invoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
+
+        assertThat(invoice.getItems().size(), is(0));
+    }
 }
