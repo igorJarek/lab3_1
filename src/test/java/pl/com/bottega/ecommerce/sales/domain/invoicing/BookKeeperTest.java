@@ -18,8 +18,7 @@ import static org.junit.Assert.*;
 
 public class BookKeeperTest {
 
-    @Rule
-    public MockitoRule rule = MockitoJUnit.rule();
+    @Rule public MockitoRule rule = MockitoJUnit.rule();
 
     private BookKeeper bookKeeper;
     private ClientData clientData;
@@ -39,8 +38,7 @@ public class BookKeeperTest {
         when(productData.getType()).thenReturn(ProductType.STANDARD);
 
         TaxPolicy taxPolicy = mock(TaxPolicy.class);
-        when(taxPolicy.calculateTax(any(ProductType.class), any(Money.class)))
-               .thenReturn(new Tax(Money.ZERO, null));
+        when(taxPolicy.calculateTax(any(ProductType.class), any(Money.class))).thenReturn(new Tax(Money.ZERO, null));
 
         invoiceRequest.add(requestItem);
         Invoice invoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
@@ -60,8 +58,7 @@ public class BookKeeperTest {
         when(productDataTwo.getType()).thenReturn(ProductType.FOOD);
 
         TaxPolicy taxPolicy = mock(TaxPolicy.class);
-        when(taxPolicy.calculateTax(any(ProductType.class), any(Money.class)))
-                .thenReturn(new Tax(Money.ZERO, null));
+        when(taxPolicy.calculateTax(any(ProductType.class), any(Money.class))).thenReturn(new Tax(Money.ZERO, null));
 
         invoiceRequest.add(requestItemOne);
         invoiceRequest.add(requestItemTwo);
@@ -80,5 +77,27 @@ public class BookKeeperTest {
         Invoice invoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
 
         assertThat(invoice.getItems().size(), is(0));
+    }
+
+    @Test
+    public void invoiceRequestWithOneMillionItemMustReturnInvoiceWithOneMillionItem() {
+        InvoiceRequest invoiceRequest = new InvoiceRequest(clientData);
+
+        final int count = 1000000;
+        for(int i = 0; i < count; i++) {
+            ProductData productData = mock(ProductData.class);
+            RequestItem requestItem = new RequestItem(productData, 1, Money.ZERO);
+
+            when(productData.getType()).thenReturn(ProductType.STANDARD);
+
+            invoiceRequest.add(requestItem);
+        }
+
+        TaxPolicy taxPolicy = mock(TaxPolicy.class);
+        when(taxPolicy.calculateTax(any(ProductType.class), any(Money.class))).thenReturn(new Tax(Money.ZERO, null));
+
+        Invoice invoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
+
+        assertThat(invoice.getItems().size(), is(count));
     }
 }
