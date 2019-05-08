@@ -63,4 +63,22 @@ public class AddProductCommandHandlerTest {
         verifyZeroInteractions(suggestionService);
         verifyZeroInteractions(clientRepository);
     }
+
+    @Test
+    public void addOneRemovedProductShouldAddSuggestedProduct() {
+        when(reservationRepository.load(addProductCommand.getOrderId())).thenReturn(reservation);
+        when(productRepository.load(addProductCommand.getProductId())).thenReturn(removedProduct);
+
+        when(clientRepository.load(systemContext.getSystemUser().getClientId())).thenReturn(client);
+        when(suggestionService.suggestEquivalent(removedProduct, client)).thenReturn(availableProduct);
+        doNothing().when(reservationRepository).save(reservation);
+
+        productCommandHandler.handle(addProductCommand);
+
+        verify(reservationRepository, times(1)).load(addProductCommand.getOrderId());
+        verify(productRepository, times(1)).load(addProductCommand.getProductId());
+        verify(clientRepository, times(1)).load(systemContext.getSystemUser().getClientId());
+        verify(suggestionService, times(1)).suggestEquivalent(removedProduct, client);
+        verify(reservationRepository, times(1)).save(reservation);
+    }
 }
