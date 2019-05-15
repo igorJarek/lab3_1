@@ -7,12 +7,12 @@ import pl.com.bottega.ecommerce.sales.application.api.command.AddProductCommand;
 import pl.com.bottega.ecommerce.sales.domain.client.*;
 import pl.com.bottega.ecommerce.sales.domain.equivalent.SuggestionService;
 import pl.com.bottega.ecommerce.sales.domain.productscatalog.*;
-import pl.com.bottega.ecommerce.sales.domain.reservation.Reservation.ReservationStatus;
 import pl.com.bottega.ecommerce.sales.domain.reservation.*;
 import pl.com.bottega.ecommerce.sharedkernel.Money;
 import pl.com.bottega.ecommerce.system.application.SystemContext;
-
-import java.util.Date;
+import test.builder.AddProductCommandBuilder;
+import test.builder.ProductBuilder;
+import test.builder.ReservationBuilder;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
@@ -34,7 +34,7 @@ public class AddProductCommandHandlerTest {
 
     @Before
     public void setUp() {
-        addProductCommand = new AddProductCommand(Id.generate(), Id.generate(), 1);
+        addProductCommand = new AddProductCommandBuilder().build();
 
         reservationRepository = mock(ReservationRepository.class);
         productRepository = mock(ProductRepository.class);
@@ -43,10 +43,10 @@ public class AddProductCommandHandlerTest {
         systemContext = new SystemContext();
 
         productCommandHandler = new AddProductCommandHandler(reservationRepository, productRepository, suggestionService, clientRepository, systemContext);
-        reservation = new Reservation(Id.generate(), ReservationStatus.OPENED, new ClientData(Id.generate(), "Kowalski"), new Date(2000, 1, 1));
-        removedProduct = new Product(Id.generate(), new Money(10), "Papier toaletowy", ProductType.STANDARD);
+        reservation = new ReservationBuilder().build();
+        removedProduct = new ProductBuilder().setName("Papier toaletowy").setPrice(10.0).build();
         removedProduct.markAsRemoved();
-        availableProduct = new Product(Id.generate(), new Money(20), "Papier ścierny", ProductType.STANDARD);
+        availableProduct = new ProductBuilder().setName("Papier ścierny").setPrice(20.0).build();
         client = new Client();
     }
 
